@@ -10,6 +10,8 @@ let chatHistory = [];
 let systemPrompt = '';
 let uploadedImageData = null;
 const assetImages = {}; 
+let debugWorker = null; 
+let debugTimer = null; 
 
 // --- DOM 요소 가져오기 ---
 const processBtn = document.getElementById('process-btn');
@@ -30,9 +32,144 @@ const assetUploadInput = document.getElementById('asset-upload');
 const userUploadStatus = document.getElementById('user-upload-status');
 const charUploadStatus = document.getElementById('char-upload-status'); 
 const assetUploadStatus = document.getElementById('asset-upload-status');
+const debugRegexBtn = document.getElementById('debug-regex-btn');
+const regexDebugOutput = document.getElementById('regex-debug-output');
+const versionLink = document.getElementById('version-link');
+const changelogModal = document.getElementById('changelog-modal');
+const changelogContent = document.getElementById('changelog-content');
+const modalCloseBtn = document.querySelector('.modal-close-btn');
 
 
 // --- 함수 정의 ---
+
+/**
+ * 잠재적인 XSS 공격을 막기 위해 HTML 문자를 이스케이프하는 헬퍼 함수
+ * @param {string} str 
+ */
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, function(match) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[match];
+    });
+}
+
+// 정규식 디버깅 시각 피드백
+/**
+ * 웹 워커에서 정규식을 실행하고 결과를 Promise로 반환하는 함수
+ * @param {string} pattern - 테스트할 정규식 패턴
+ * @param {string} text - 테스트할 텍스트
+ * @returns {Promise<{status: string, matches?: any[], message?: string}>}
+ */
+function runRegexInWorker(pattern, text) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker('regex-worker.js');
+        let timer;
+
+        worker.onmessage = (event) => {
+            clearTimeout(timer);
+            worker.terminate();
+            resolve(event.data);
+        };
+
+        worker.onerror = (error) => {
+            clearTimeout(timer);
+            worker.terminate();
+            reject(new Error(`워커 오류: ${error.message}`));
+        };
+
+        worker.postMessage({ pattern, text });
+
+        timer = setTimeout(() => {
+            worker.terminate();
+            reject(new Error('실행 시간이 초과되었습니다.'));
+        }, 2000);
+    });
+}
+
+/**
+ * 정규식 입력을 점진적으로 디버깅하여 부분 일치 결과를 찾는 비동기 함수
+ */
+async function handleRegexDebug() {
+    const regexPattern = regexIn.value;
+    const inputText = sampleText.value;
+
+    if (!regexPattern || !inputText) {
+        regexDebugOutput.innerHTML = '<div class="no-match">정규식과 예시 문구를 모두 입력해주세요.</div>';
+        return;
+    }
+
+    regexDebugOutput.innerHTML = '디버깅 중...';
+
+    // 전체 패턴부터 시작하여 한 글자씩 줄여나가는 루프
+    for (let i = regexPattern.length; i > 0; i--) {
+        const currentPattern = regexPattern.slice(0, i);
+        if (!currentPattern) continue;
+
+        try {
+            const result = await runRegexInWorker(currentPattern, inputText);
+
+            if (result.status === 'success' && result.matches.length > 0) {
+                // 매치에 성공한 경우
+                
+                if (i === regexPattern.length) {
+                    // 1. 전체 패턴이 성공한 경우
+                    let resultHtml = '<div><strong>✅ 전체 패턴 매치 성공!</strong></div>';
+                    result.matches.forEach((match, index) => {
+                        resultHtml += `<div class="match-block">`;
+                        resultHtml += `<div><strong>매치 ${index + 1}:</strong> <span class="full-match">${escapeHtml(match[0])}</span></div>`;
+                        if (match.length > 1) {
+                            for (let k = 1; k < match.length; k++) {
+                                const groupText = match[k] === undefined ? 'undefined' : match[k];
+                                resultHtml += `<div>&nbsp;&nbsp;<strong>그룹 ${k}:</strong> <span class="capture-group">${escapeHtml(groupText)}</span></div>`;
+                            }
+                        }
+                        resultHtml += `</div>`;
+                    });
+                    regexDebugOutput.innerHTML = resultHtml;
+
+                } else {
+                    // 2. 부분 패턴이 성공한 경우
+                    const matchedText = result.matches[0][0];
+                    const successPattern = escapeHtml(currentPattern);
+                    const failurePoint = escapeHtml(regexPattern.slice(i));
+
+                    let resultHtml = `<div class="match-block">`;
+                    resultHtml += `<div><strong>부분 매치 성공:</strong> <span class="full-match">${escapeHtml(matchedText)}</span></div>`;
+                    resultHtml += `<hr style="border-color: #555; margin: 5px 0;">`;
+                    resultHtml += `<div style="color: #2ecc71;"><strong>✅ 여기까지 매치 성공:</strong></div>`;
+                    resultHtml += `<div style="white-space: pre-wrap; word-break: break-all;">${successPattern}</div>`;
+                    resultHtml += `<hr style="border-color: #555; margin: 5px 0;">`;
+                    resultHtml += `<div class="error"><strong>❌ 여기서부터 매치 실패 추정:</strong></div>`;
+                    resultHtml += `<div class="error" style="white-space: pre-wrap; word-break: break-all;">${failurePoint}</div>`;
+                    resultHtml += `</div>`;
+                    
+                    regexDebugOutput.innerHTML = resultHtml;
+                }
+                
+                return; // 가장 긴 성공 패턴을 찾았으므로 함수 종료
+            }
+            // `status`가 `error`(구문 오류)이거나 `matches`가 비어있으면 루프 계속
+
+        } catch (error) {
+            // runRegexInWorker에서 타임아웃 등의 오류가 발생한 경우
+            // 오류 메시지를 표시하지 않고 그냥 다음 루프로 넘어감
+            // (더 짧은 패턴으로 계속 시도)
+            if (i === regexPattern.length) {
+                // 전체 패턴에서 타임아웃이 발생했음을 사용자에게 알려주면 더 좋음
+                regexDebugOutput.innerHTML = '전체 패턴 실행 시간 초과. 가장 긴 부분 매치를 찾는 중...';
+            }
+            continue;
+        }
+    }
+
+    // 루프가 끝날 때까지 아무것도 찾지 못했다면
+    regexDebugOutput.innerHTML = '<div class="no-match">어떤 부분도 일치하는 항목을 찾을 수 없습니다.</div>';
+}
 
 // 탭 전환 함수
 function showTab(tabId) {
@@ -185,6 +322,33 @@ function handleAssetUpload(event, assetName, statusElement) {
     reader.readAsDataURL(file);
 }
 
+/**
+ * changelog.md 파일을 가져와서 모달에 표시하는 함수
+ */
+async function showChangelogModal() {
+    changelogModal.style.display = 'block';
+    changelogContent.innerHTML = '<p>변경 내역을 불러오는 중입니다...</p>';
+
+    try {
+        const response = await fetch('changelog.md');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const markdownText = await response.text();
+        // marked.js를 사용하여 Markdown을 HTML로 변환
+        changelogContent.innerHTML = marked.parse(markdownText);
+    } catch (error) {
+        changelogContent.innerHTML = `<p style="color: red;">변경 내역을 불러오는 데 실패했습니다: ${error.message}</p>`;
+    }
+}
+
+/**
+ * 모달 창을 닫는 함수
+ */
+function hideChangelogModal() {
+    changelogModal.style.display = 'none';
+}
+
 
 
 // --- 이벤트 리스너 연결 ---
@@ -214,6 +378,19 @@ resetChatBtn.addEventListener('click', () => {
 userUploadInput.addEventListener('change', (e) => handleAssetUpload(e, 'user', userUploadStatus));
 charUploadInput.addEventListener('change', (e) => handleAssetUpload(e, 'char', charUploadStatus));
 assetUploadInput.addEventListener('change', (e) => handleAssetUpload(e, 'asset', assetUploadStatus));
+debugRegexBtn.addEventListener('click', handleRegexDebug);
+versionLink.addEventListener('click', (e) => {
+    e.preventDefault(); // 기본 링크 동작 방지
+    showChangelogModal();
+});
+modalCloseBtn.addEventListener('click', hideChangelogModal);
+
+// 모달 창 바깥 영역을 클릭하면 닫히게 함
+window.addEventListener('click', (event) => {
+    if (event.target == changelogModal) {
+        hideChangelogModal();
+    }
+});
 
 // 이미지 업로드 처리
 imageUpload.addEventListener('change', (event) => {

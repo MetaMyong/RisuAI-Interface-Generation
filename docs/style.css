@@ -2,7 +2,10 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    display: flex; justify-content: center; padding: 20px;
+    display: flex; 
+    flex-direction: column; /* header와 footer 배치를 위해 추가 */
+    align-items: center; /* header와 footer 배치를 위해 추가 */
+    padding: 20px;
     background-color: #f4f7f9; color: #333;
 }
 .container { width: 90%; max-width: 1200px; }
@@ -97,3 +100,151 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
     margin-top: 15px;
     width: 100%; /* 버튼을 꽉 채움 */
 }
+
+/* ▼▼▼ 정규식 디버그 UI 스타일 ▼▼▼ */
+.label-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.label-with-button label {
+    margin-bottom: 0; /* label 기본 마진 제거 */
+}
+.debug-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #2ecc71; /* 초록색 계열 */
+    margin: 0;
+}
+.debug-btn:hover {
+    background-color: #27ae60;
+}
+#regex-debug-output {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #2d3436; /* 어두운 배경 */
+    color: #dfe6e9;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #444;
+}
+#regex-debug-output .match-block {
+	min-height: 1.6em; /* 최소 높이를 확보하여 겹침 방지 */
+    line-height: 1.6;   /* 줄 간격을 늘려 가독성 향상 */
+    margin-bottom: 2px; /* 각 줄 사이에 약간의 여백 추가 */
+    padding: 8px;
+    border-bottom: 1px solid #555;
+}
+#regex-debug-output .match-block:last-child {
+    border-bottom: none;
+}
+#regex-debug-output .full-match {
+    background-color: #f1c40f; /* 노란색 */
+    color: #333;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+#regex-debug-output .capture-group {
+	display: inline-block; 
+    background-color: #3498db; /* 파란색 */
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+#regex-debug-output .error {
+    color: #e74c3c; /* 빨간색 */
+}
+#regex-debug-output .no-match {
+    color: #95a5a6; /* 회색 */
+}
+
+/* ▼▼▼ 헤더 및 버전 정보 스타일 ▼▼▼ */
+.header-container {
+    width: 90%;
+    max-width: 1200px;
+    position: relative; /* 자식 요소의 absolute 위치 기준점 */
+    height: 30px; /* 버전 링크가 들어갈 공간 확보 */
+}
+#version-link {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 14px;
+    color: #555;
+    text-decoration: none;
+    padding: 5px 10px;
+    background-color: #ecf0f1;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+#version-link:hover {
+    background-color: #bdc3c7;
+}
+
+/* ▼▼▼ 푸터 스타일 ▼▼▼ */
+.footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 30px;
+    font-size: 14px;
+    color: #777;
+}
+.footer a {
+    color: #3498db;
+    text-decoration: none;
+}
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* ▼▼▼ 모달 창 스타일 ▼▼▼ */
+.modal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* 반투명 배경 */
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 700px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+.modal-close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.modal-close-btn:hover,
+.modal-close-btn:focus {
+    color: black;
+}
+#changelog-content {
+    margin-top: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+    line-height: 1.6;
+}
+/* changelog.md 내부 태그 스타일 (선택사항) */
+#changelog-content h3 { margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+#changelog-content code { background-color: #eee; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+#changelog-content ul { padding-left: 20px; }

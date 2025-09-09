@@ -3,29 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RisuAI 인터페이스 생성 도구</title>
+    <title>RisuAI 봇 제작 보조 도구</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
+
+    <div class="header-container">
+        <a href="#" id="version-link">v1.0.1</a>
+    </div>
 
     <div class="container">
         <!-- 탭 버튼 영역 -->
         <div class="tabs">
-            <button class="tab-btn active-tab" onclick="showTab('editor-ai-tab')">편집기 & AI</button>
+            <button class="tab-btn active-tab" onclick="showTab('editor-ai-tab')">인터페이스 편집기</button>
             <button class="tab-btn" onclick="showTab('settings-tab')">설정</button>
         </div>
 
         <!-- 탭 콘텐츠 영역 -->
         <div class="tab-content">
 
-            <!-- 탭 1: 편집기 & AI -->
+            <!-- 탭 1: 인터페이스 편집기 -->
             <div id="editor-ai-tab" class="tab-pane active-pane">
                 <!-- 상단: 미리보기 결과 영역 -->
                 <div class="card preview-card">
                     <h2>미리보기 결과</h2>
                     <div id="preview-output"></div>
 
-                    <!-- ▼▼▼ 이 부분이 추가/수정되었습니다 ▼▼▼ -->
                     <div class="asset-upload-area">
                         <span class="upload-title">예시 이미지 업로드:</span>
                         <div class="upload-item">
@@ -45,7 +49,6 @@
                         </div>
                     </div>
                     <button id="process-btn" class="preview-btn">미리보기 수동 생성</button>
-                    <!-- ▲▲▲ 여기까지 추가/수정 ▲▲▲ -->
                 </div>
 
                 <!-- 하단: 입력 패널 컨테이너 -->
@@ -54,8 +57,12 @@
                     <div class="card">
                         <h2>입력</h2>
                         <div class="input-group">
-                            <label for="regex-in">정규식 IN</label>
+                            <div class="label-with-button">
+                                <label for="regex-in">정규식 IN</label>
+                                <button id="debug-regex-btn" class="debug-btn">디버그</button>
+                            </div>
                             <textarea id="regex-in" placeholder="[Time:(.*?)]"></textarea>
+                            <div id="regex-debug-output"></div>
                         </div>
                         <div class="input-group">
                             <label for="replace-out">Replace OUT (HTML/CSS 템플릿)</label>
@@ -77,7 +84,7 @@
                         </div>
                         <div class="input-group">
                             <label for="ai-prompt">AI 요청 프롬프트</label>
-                            <textarea id="ai-prompt" placeholder="예: 유튜브 채팅창 스타일의 세련된 시계 상태창을 만들어줘."></textarea>
+                            <textarea id="ai-prompt" placeholder="예: 유튜브 채팅창 스타일의 세련된 시계 상태창을 만들어줘. 시간은 [Time: HH:mm:ss] 형태로 표시될거야."></textarea>
                         </div>
                         <button id="ai-generate-btn">AI에게 요청</button>
                         <button id="reset-chat-btn" class="secondary">대화 이력 초기화</button>
@@ -97,10 +104,25 @@
                         <input type="password" id="api-key-input" placeholder="여기에 API 키를 붙여넣으세요">
                         <p class="note">API 키는 브라우저에만 저장됩니다.</p>
                     </div>
-                    <!-- ▼▼▼ 이미지 크기 설정 UI 삭제됨 ▼▼▼ -->
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>
+            <a href="https://github.com/MetaMyong/RisuAI-Interface-Generation" target="_blank">GitHub Repository</a> | Licensed under MIT
+        </p>
+    </footer>
+    
+    <div id="changelog-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn">&times;</span>
+            <h2>변경 내역 (Changelog)</h2>
+            <div id="changelog-content">
+                <p>로딩 중...</p>
+            </div>
         </div>
     </div>
 
