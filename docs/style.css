@@ -248,3 +248,88 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
 #changelog-content h3 { margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
 #changelog-content code { background-color: #eee; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
 #changelog-content ul { padding-left: 20px; }
+
+/* ▼▼▼ 헤더 로고 스타일 추가 ▼▼▼ */
+.main-logo {
+    font-family: 'Orbit', sans-serif;
+    position: absolute;
+    top: -5px;
+    left: 0;
+    font-size: 24px;
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 400; /* Orbit 폰트는 400 두께만 지원 */
+}
+
+/* ▼▼▼ 캐릭터 시트 UI 스타일 추가 ▼▼▼ */
+#character-sheet-tab {
+    display: none; /* 기본 숨김 */
+    flex-direction: column;
+    gap: 20px;
+}
+#character-sheet-tab.active-pane {
+    display: flex; /* 활성화 시 보임 */
+}
+
+#character-sheet-preview, #lore-generator-preview {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 좌우 2단 그리드 */
+    gap: 20px;
+    width: 100%;
+    min-height: 300px;
+}
+
+.korean-output, .english-output {
+    border: 1px dashed #ccc;
+    padding: 15px;
+    background-color: #fafafa;
+    display: flex;
+    flex-direction: column;
+}
+
+.korean-output h3, .english-output h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.output-content {
+    flex-grow: 1; /* 남은 공간을 모두 차지 */
+    white-space: pre-wrap; /* 줄바꿈 및 공백 유지 */
+    word-break: break-all; /* 긴 단어 자동 줄바꿈 */
+    font-family: 'Malgun Gothic', sans-serif;
+    line-height: 1.7;
+}
+
+/* ▼▼▼ 설정 UI 스타일 추가 ▼▼▼ */
+.settings-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+.checkbox-group label {
+    margin-bottom: 0; /* label 기본 마진 제거 */
+    font-weight: normal;
+}
+
+.checkbox-group .note {
+    width: 100%;
+    margin-left: 26px; /* 체크박스 너비 + 마진 */
+    margin-top: 2px;
+}

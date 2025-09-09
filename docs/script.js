@@ -4,6 +4,9 @@ const CHAT_HISTORY_STORAGE_KEY = 'risuai_helper_chat_history';
 const REGEX_INPUT_STORAGE_KEY = 'risuai_helper_regex_input';
 const REPLACE_TEMPLATE_STORAGE_KEY = 'risuai_helper_replace_template';
 const SAMPLE_TEXT_STORAGE_KEY = 'risuai_helper_sample_text';
+// 모델 선택
+const MODEL_STORAGE_KEY = 'risuai_helper_selected_model';
+const PREFILL_OPTION_STORAGE_KEY = 'risuai_helper_prefill_option';
 
 // --- 전역 변수 ---
 let chatHistory = [];
@@ -13,7 +16,10 @@ const assetImages = {};
 let debugWorker = null; 
 let debugTimer = null; 
 
+// -----------------------
 // --- DOM 요소 가져오기 ---
+// -----------------------
+// 기본
 const processBtn = document.getElementById('process-btn');
 const regexIn = document.getElementById('regex-in');
 const replaceOut = document.getElementById('replace-out');
@@ -24,6 +30,8 @@ const resetChatBtn = document.getElementById('reset-chat-btn');
 const apiKeyInput = document.getElementById('api-key-input');
 const aiPrompt = document.getElementById('ai-prompt');
 const aiLog = document.getElementById('ai-log');
+
+//이미지 업로드
 const imageUpload = document.getElementById('image-upload');
 const imagePreview = document.getElementById('image-preview');
 const userUploadInput = document.getElementById('user-upload'); 
@@ -32,15 +40,36 @@ const assetUploadInput = document.getElementById('asset-upload');
 const userUploadStatus = document.getElementById('user-upload-status');
 const charUploadStatus = document.getElementById('char-upload-status'); 
 const assetUploadStatus = document.getElementById('asset-upload-status');
+
+// 정규식 디버그
 const debugRegexBtn = document.getElementById('debug-regex-btn');
 const regexDebugOutput = document.getElementById('regex-debug-output');
 const versionLink = document.getElementById('version-link');
+
+// 변경 내역
 const changelogModal = document.getElementById('changelog-modal');
 const changelogContent = document.getElementById('changelog-content');
 const modalCloseBtn = document.querySelector('.modal-close-btn');
 
+// 캐릭터 시트
+const characterPrompt = document.getElementById('character-prompt');
+const characterGenerateBtn = document.getElementById('character-generate-btn');
+const koreanOutputContent = document.getElementById('korean-output-content');
+const englishOutputContent = document.getElementById('english-output-content');
 
+// 모델 선택
+const modelSelect = document.getElementById('model-select');
+const prefillOptionCheckbox = document.getElementById('prefill-option-checkbox')
+
+// 지시문 생성기
+const lorePrompt = document.getElementById('lore-prompt');
+const loreGenerateBtn = document.getElementById('lore-generate-btn');
+const koreanLoreOutputContent = document.getElementById('korean-lore-output-content');
+const englishLoreOutputContent = document.getElementById('english-lore-output-content');
+
+// -----------------------
 // --- 함수 정의 ---
+// -----------------------
 
 /**
  * 잠재적인 XSS 공격을 막기 위해 HTML 문자를 이스케이프하는 헬퍼 함수
@@ -202,6 +231,8 @@ function loadDataFromStorage() {
     regexIn.value = localStorage.getItem(REGEX_INPUT_STORAGE_KEY) || '';
     replaceOut.value = localStorage.getItem(REPLACE_TEMPLATE_STORAGE_KEY) || '';
     sampleText.value = localStorage.getItem(SAMPLE_TEXT_STORAGE_KEY) || '';
+	modelSelect.value = localStorage.getItem(MODEL_STORAGE_KEY) || 'gemini-2.5-pro';
+    prefillOptionCheckbox.checked = localStorage.getItem(PREFILL_OPTION_STORAGE_KEY) === 'true';
     
     if (regexIn.value && sampleText.value) {
         handlePreviewGeneration();
@@ -260,6 +291,9 @@ function parseAndPopulate(aiResponse) {
 async function handleAiGeneration() {
     const apiKey = apiKeyInput.value;
     const userPrompt = aiPrompt.value;
+    const selectedModel = modelSelect.value;
+    const usePrefill = prefillOptionCheckbox.checked;
+	
     if (!apiKey || (!userPrompt && !uploadedImageData)) {
         aiLog.textContent = 'API 키를 입력하고, 프롬프트 또는 이미지를 제공해주세요.';
         return;
@@ -271,11 +305,19 @@ async function handleAiGeneration() {
     if (uploadedImageData) userParts.push({ inline_data: { mime_type: uploadedImageData.mimeType, data: uploadedImageData.base64 } });
     if (userPrompt) userParts.push({ text: userPrompt });
 
-    chatHistory.push({ role: 'user', parts: userParts });
+    const contentToSend = [...chatHistory];
+    contentToSend.push({ role: 'user', parts: userParts });
+
+    if (usePrefill) {
+        contentToSend.push({ role: 'model', parts: [{ text: "Understood." }] });
+    }
 
     try {
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
-        const requestBody = { contents: chatHistory, generationConfig: { temperature: 1, maxOutputTokens: 16384 } };
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+        const requestBody = { contents: contentToSend, generationConfig: { temperature: 1, maxOutputTokens: 16384 } };
+		
+		console.log("🚀 인터페이스 생성 요청:", { url: API_URL, body: requestBody });
+		
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -286,18 +328,26 @@ async function handleAiGeneration() {
             throw new Error(errorData.error.message || `API 요청 실패: ${response.statusText}`);
         }
         const data = await response.json();
+		
+        console.log("✅ 인터페이스 생성 응답:", data);
+		
         if (!data.candidates || data.candidates.length === 0) {
              throw new Error("API로부터 유효한 응답을 받지 못했습니다.");
         }
-        const aiResult = data.candidates[0].content.parts[0].text;
+        const aiParts = data.candidates[0].content.parts;
+		const aiResult = aiParts.map(part => part.text).join('');
+
         parseAndPopulate(aiResult);
         handlePreviewGeneration();
         aiLog.textContent = "✅ AI가 성공적으로 코드를 생성하고 미리보기를 업데이트했습니다.";
-        chatHistory.push(data.candidates[0].content); 
+		
+        chatHistory.push({ role: 'user', parts: userParts });
+        chatHistory.push(data.candidates[0].content);
         localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
+
     } catch (error) {
+        console.error("❌ 인터페이스 생성 오류:", error);
         aiLog.textContent = `❌ 오류 발생: ${error.message}`;
-        chatHistory.pop();
     } finally {
         aiGenerateBtn.disabled = false;
         uploadedImageData = null;
@@ -349,9 +399,169 @@ function hideChangelogModal() {
     changelogModal.style.display = 'none';
 }
 
+// 캐릭터 시트 생성 함수
+async function handleCharacterSheetGeneration() {
+    const apiKey = apiKeyInput.value;
+    const userCharacterPrompt = characterPrompt.value;
+	const selectedModel = modelSelect.value;
+    const usePrefill = prefillOptionCheckbox.checked;
 
 
+    if (!apiKey || !userCharacterPrompt) {
+        alert('Gemini API 키를 설정하고, 캐릭터 설정을 입력해주세요.');
+        return;
+    }
+
+    koreanOutputContent.textContent = 'AI에게 요청 중입니다...';
+    englishOutputContent.textContent = 'Requesting from AI...';
+    characterGenerateBtn.disabled = true;
+
+    try {
+        // 1. Character.prompt 파일 불러오기
+        const response = await fetch('Character.prompt');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const characterSystemPrompt = await response.text();
+
+        // 2. 시스템 프롬프트와 사용자 입력을 조합
+        const finalPrompt = characterSystemPrompt + "\n\n" + userCharacterPrompt;
+        
+		const contents = [{ role: 'user', parts: [{ text: finalPrompt }] }];
+        if (usePrefill) {
+            contents.push({ role: 'model', parts: [{ text: "Understood." }] });
+        }
+		
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+        const requestBody = {
+            contents: contents, // 수정된 contents 사용
+            generationConfig: { temperature: 1, maxOutputTokens: 16384 }
+        };
+		
+        console.log("🚀 캐릭터 시트 생성 요청:", { url: API_URL, body: requestBody });
+
+        // 3. API 요청
+        const apiResponse = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!apiResponse.ok) {
+            const errorData = await apiResponse.json();
+            throw new Error(errorData.error.message || `API 요청 실패: ${apiResponse.statusText}`);
+        }
+
+        const data = await apiResponse.json();
+		
+		console.log("✅ 캐릭터 시트 생성 응답:", data);
+
+        if (!data.candidates || data.candidates.length === 0) {
+             throw new Error("API로부터 유효한 응답을 받지 못했습니다.");
+        }
+        const aiParts = data.candidates[0].content.parts;
+		const aiResult = aiParts.map(part => part.text).join('');
+
+        // 4. 결과 파싱
+        const koreanMatch = aiResult.match(/\[KOREAN\]([\s\S]*?)\[\/KOREAN\]/);
+        const englishMatch = aiResult.match(/\[ENGLISH\]([\s\S]*?)\[\/ENGLISH\]/);
+
+        if (!koreanMatch || !englishMatch) {
+            throw new Error("AI 응답이 올바른 형식([KOREAN], [ENGLISH])이 아닙니다.");
+        }
+
+        // 5. 미리보기에 출력
+        koreanOutputContent.textContent = koreanMatch[1].trim();
+        englishOutputContent.textContent = englishMatch[1].trim();
+
+    } catch (error) {
+        console.error("❌ 캐릭터 시트 생성 오류:", error);
+        koreanOutputContent.textContent = `오류 발생: ${error.message}`;
+        englishOutputContent.textContent = `Error: ${error.message}`;
+    } finally {
+        characterGenerateBtn.disabled = false;
+    }
+}
+
+// 지시문 생성 함수
+async function handleLoreGeneration() {
+    const apiKey = apiKeyInput.value;
+    const userLorePrompt = lorePrompt.value;
+    const selectedModel = modelSelect.value;
+    const usePrefill = prefillOptionCheckbox.checked;
+
+    if (!apiKey || !userLorePrompt) {
+        alert('Gemini API 키를 설정하고, 생성 조건을 입력해주세요.');
+        return;
+    }
+
+    koreanLoreOutputContent.textContent = 'AI가 지시문을 생성하는 중입니다...';
+    englishLoreOutputContent.textContent = 'Generating the directive...';
+    loreGenerateBtn.disabled = true;
+
+    try {
+        const response = await fetch('Lore.prompt');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const loreSystemPrompt = await response.text();
+
+        const finalPrompt = loreSystemPrompt + "\n\n--- User's Request ---\n" + userLorePrompt;
+        
+        const contents = [{ role: 'user', parts: [{ text: finalPrompt }] }];
+        if (usePrefill) {
+            contents.push({ role: 'model', parts: [{ text: "Understood. I will now generate the directive in both Korean and English based on the user's request." }] });
+        }
+
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+        const requestBody = {
+            contents: contents,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
+        };
+
+        console.log("🚀 지시문 생성 요청:", { url: API_URL, body: requestBody });
+
+        const apiResponse = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!apiResponse.ok) {
+            const errorData = await apiResponse.json();
+            throw new Error(errorData.error.message || `API 요청 실패: ${apiResponse.statusText}`);
+        }
+
+        const data = await apiResponse.json();
+        console.log("✅ 지시문 생성 응답:", data);
+
+        if (!data.candidates || data.candidates.length === 0) {
+             throw new Error("API로부터 유효한 응답을 받지 못했습니다.");
+        }
+
+        const aiParts = data.candidates[0].content.parts;
+        const aiResult = aiParts.map(part => part.text).join('');
+
+        // 결과 파싱
+        const koreanMatch = aiResult.match(/\[KOREAN\]([\s\S]*?)\[\/KOREAN\]/);
+        const englishMatch = aiResult.match(/\[ENGLISH\]([\s\S]*?)\[\/ENGLISH\]/);
+
+        if (!koreanMatch || !englishMatch) {
+            throw new Error("AI 응답이 올바른 형식([KOREAN], [ENGLISH])이 아닙니다. 받은 응답: " + aiResult);
+        }
+
+        // 미리보기에 출력
+        koreanLoreOutputContent.textContent = koreanMatch[1].trim();
+        englishLoreOutputContent.textContent = englishMatch[1].trim();
+
+    } catch (error) {
+        console.error("❌ 지시문 생성 오류:", error);
+        koreanLoreOutputContent.textContent = `오류 발생: ${error.message}`;
+        englishLoreOutputContent.textContent = `Error: ${error.message}`;
+    } finally {
+        loreGenerateBtn.disabled = false;
+    }
+}
+
+// -----------------------
 // --- 이벤트 리스너 연결 ---
+// -----------------------
 document.addEventListener('DOMContentLoaded', () => {
     loadDataFromStorage();
     showTab('editor-ai-tab');
@@ -362,10 +572,14 @@ apiKeyInput.addEventListener('input', () => localStorage.setItem(API_KEY_STORAGE
 regexIn.addEventListener('input', () => localStorage.setItem(REGEX_INPUT_STORAGE_KEY, regexIn.value));
 replaceOut.addEventListener('input', () => localStorage.setItem(REPLACE_TEMPLATE_STORAGE_KEY, replaceOut.value));
 sampleText.addEventListener('input', () => localStorage.setItem(SAMPLE_TEXT_STORAGE_KEY, sampleText.value));
+modelSelect.addEventListener('change', () => localStorage.setItem(MODEL_STORAGE_KEY, modelSelect.value));
+prefillOptionCheckbox.addEventListener('change', () => localStorage.setItem(PREFILL_OPTION_STORAGE_KEY, prefillOptionCheckbox.checked));
 
-// 버튼 클릭 이벤트
+// 버튼 클릭 이벤트 리스너
 processBtn.addEventListener('click', handlePreviewGeneration);
 aiGenerateBtn.addEventListener('click', handleAiGeneration);
+characterGenerateBtn.addEventListener('click', handleCharacterSheetGeneration);
+loreGenerateBtn.addEventListener('click', handleLoreGeneration);
 resetChatBtn.addEventListener('click', () => {
     localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
     initializeChatFromPrompt(); 
@@ -375,9 +589,13 @@ resetChatBtn.addEventListener('click', () => {
     imagePreview.innerHTML = '';
     imageUpload.value = '';
 });
+
+// 이미지 이벤트 리스너
 userUploadInput.addEventListener('change', (e) => handleAssetUpload(e, 'user', userUploadStatus));
 charUploadInput.addEventListener('change', (e) => handleAssetUpload(e, 'char', charUploadStatus));
 assetUploadInput.addEventListener('change', (e) => handleAssetUpload(e, 'asset', assetUploadStatus));
+
+// 정규식 리스너
 debugRegexBtn.addEventListener('click', handleRegexDebug);
 versionLink.addEventListener('click', (e) => {
     e.preventDefault(); // 기본 링크 동작 방지
