@@ -1,6 +1,10 @@
 // --- 로컬 스토리지 키 정의 ---
 const API_KEY_STORAGE_KEY = 'risuai_helper_api_key';
 const CHAT_HISTORY_STORAGE_KEY = 'risuai_helper_chat_history';
+// 새로 추가될 키
+const REGEX_INPUT_STORAGE_KEY = 'risuai_helper_regex_input';
+const REPLACE_TEMPLATE_STORAGE_KEY = 'risuai_helper_replace_template';
+const SAMPLE_TEXT_STORAGE_KEY = 'risuai_helper_sample_text';
 
 // --- 전역 변수 ---
 let chatHistory = [];
@@ -21,7 +25,7 @@ const aiLog = document.getElementById('ai-log');
 
 // --- 함수 정의 ---
 
-// 시스템 프롬프트를 파일에서 불러와 초기 대화 이력 설정 (최초 실행 시)
+// 시스템 프롬프트를 파일에서 불러와 초기 대화 이력 설정
 async function initializeChatFromPrompt() {
     try {
         const response = await fetch('Interface.prompt');
@@ -42,24 +46,36 @@ async function initializeChatFromPrompt() {
     }
 }
 
-// 페이지 로드 시 로컬 스토리지에서 데이터 불러오기
+// 페이지 로드 시 로컬 스토리지에서 모든 데이터 불러오기
 function loadDataFromStorage() {
     // API 키 불러오기
     const savedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
     if (savedApiKey) {
         apiKeyInput.value = savedApiKey;
-        console.log("저장된 API 키를 불러왔습니다.");
     }
 
     // 대화 이력 불러오기
     const savedChatHistory = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
     if (savedChatHistory) {
         chatHistory = JSON.parse(savedChatHistory);
-        aiLog.textContent = "저장된 대화 이력을 불러왔습니다. 이어서 작업을 시작할 수 있습니다.";
-        console.log("저장된 대화 이력을 불러왔습니다.");
+        aiLog.textContent = "저장된 대화 이력을 불러왔습니다.";
     } else {
-        // 저장된 이력이 없으면 프롬프트 파일에서 새로 시작
         initializeChatFromPrompt();
+    }
+
+    // 왼쪽 패널 입력창 3개 데이터 불러오기
+    const savedRegex = localStorage.getItem(REGEX_INPUT_STORAGE_KEY);
+    const savedReplace = localStorage.getItem(REPLACE_TEMPLATE_STORAGE_KEY);
+    const savedSample = localStorage.getItem(SAMPLE_TEXT_STORAGE_KEY);
+
+    if (savedRegex) regexIn.value = savedRegex;
+    if (savedReplace) replaceOut.value = savedReplace;
+    if (savedSample) sampleText.value = savedSample;
+
+    // *** 중요: 로드된 데이터로 미리보기 자동 생성 ***
+    if (regexIn.value && sampleText.value) {
+        handlePreviewGeneration();
+        console.log("저장된 입력값으로 미리보기를 자동 복원했습니다.");
     }
 }
 
@@ -100,10 +116,16 @@ function parseAndPopulate(aiResponse) {
     regexIn.value = regexpMatch[1].trim();
     sampleText.value = sampleMatch[1].trim();
     replaceOut.value = codeMatch[1].trim();
+    
+    // AI가 생성한 값들도 즉시 로컬 스토리지에 저장
+    localStorage.setItem(REGEX_INPUT_STORAGE_KEY, regexIn.value);
+    localStorage.setItem(REPLACE_TEMPLATE_STORAGE_KEY, replaceOut.value);
+    localStorage.setItem(SAMPLE_TEXT_STORAGE_KEY, sampleText.value);
 }
 
 // AI에게 콘텐츠 생성 요청
 async function handleAiGeneration() {
+    // (이 함수 내용은 변경 없음)
     const apiKey = apiKeyInput.value;
     const userPrompt = aiPrompt.value;
 
@@ -147,7 +169,6 @@ async function handleAiGeneration() {
         aiLog.textContent = "✅ AI가 성공적으로 코드를 생성하고 미리보기를 업데이트했습니다.";
 
         chatHistory.push({ role: 'model', parts: [{ text: aiResult }] });
-        // *** 중요: 성공 시 대화 이력을 로컬 스토리지에 저장 ***
         localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
 
     } catch (error) {
@@ -169,18 +190,18 @@ apiKeyInput.addEventListener('input', () => {
     localStorage.setItem(API_KEY_STORAGE_KEY, apiKeyInput.value);
 });
 
+// 왼쪽 패널 입력창 3개에 대한 실시간 저장 이벤트 리스너 추가
+regexIn.addEventListener('input', () => localStorage.setItem(REGEX_INPUT_STORAGE_KEY, regexIn.value));
+replaceOut.addEventListener('input', () => localStorage.setItem(REPLACE_TEMPLATE_STORAGE_KEY, replaceOut.value));
+sampleText.addEventListener('input', () => localStorage.setItem(SAMPLE_TEXT_STORAGE_KEY, sampleText.value));
+
 // 버튼 클릭 이벤트
 processBtn.addEventListener('click', handlePreviewGeneration);
 aiGenerateBtn.addEventListener('click', handleAiGeneration);
 
 resetChatBtn.addEventListener('click', () => {
-    // *** 중요: 로컬 스토리지의 대화 이력 삭제 ***
     localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
-    
-    // 메모리상의 대화 이력도 초기화
     initializeChatFromPrompt(); 
-    
-    aiLog.textContent = '대화 이력이 초기화되었습니다. 새로운 요청을 시작할 수 있습니다.';
+    aiLog.textContent = '대화 이력이 초기화되었습니다.';
     aiPrompt.value = '';
-    console.log("대화 이력이 초기화되었습니다.");
 });
