@@ -275,7 +275,7 @@ async function handleAiGeneration() {
 
     try {
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
-        const requestBody = { contents: chatHistory, generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } };
+        const requestBody = { contents: chatHistory, generationConfig: { temperature: 1, maxOutputTokens: 16384 } };
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
