@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RisuAI 상태창 헬퍼</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- 기능 1: 입력 및 공용 미리보기 -->
+        <div class="card">
+            <h2>입력 및 미리보기</h2>
+            <div class="input-group">
+                <label for="regex-in">정규식 IN</label>
+                <textarea id="regex-in" placeholder="AI가 생성하거나 직접 입력"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="replace-out">Replace OUT (HTML/CSS 템플릿)</label>
+                <textarea id="replace-out" placeholder="AI가 생성하거나 직접 입력"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="sample-text">예시 문구</label>
+                <textarea id="sample-text" placeholder="AI가 생성하거나 직접 입력"></textarea>
+            </div>
+            <button id="process-btn">미리보기 수동 생성</button>
+            <hr style="width:100%; border: 1px solid #eee; margin: 20px 0;">
+            <h3>미리보기 결과</h3>
+            <div id="preview-output"></div>
+        </div>
+
+        <!-- 기능 2: AI 연동 -->
+        <div class="card">
+            <h2>AI를 통한 상태창 생성</h2>
+            <div class="input-group">
+                <label for="api-key-input">Gemini API 키</label>
+                <input type="password" id="api-key-input" placeholder="여기에 API 키를 붙여넣으세요">
+                <p class="note">API 키는 브라우저에만 저장됩니다.</p>
+            </div>
+            <div class="input-group">
+                <label for="ai-prompt">AI 요청 프롬프트</label>
+                <textarea id="ai-prompt" placeholder="예: 유튜브 채팅창 스타일의 세련된 시계 상태창을 만들어줘. 시간은 [Time: HH:mm:ss] 형태로 표시될거야."></textarea>
+            </div>
+            <button id="ai-generate-btn">AI에게 요청</button>
+            <button id="reset-chat-btn" class="secondary">대화 이력 초기화</button>
+            <hr style="width:100%; border: 1px solid #eee; margin: 20px 0;">
+            <h3>AI 작업 로그</h3>
+            <div id="ai-log">AI 요청 상태 및 결과가 여기에 표시됩니다.</div>
+        </div>
+    </div>
+    
+    <script src="script.js" defer></script>
+</body>
+</html>
