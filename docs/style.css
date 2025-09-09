@@ -1,98 +1,99 @@
+/* style.css 파일 하단에 아래 내용을 추가하거나 기존 내용을 교체하세요 */
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    background-color: #f4f7f9;
-    color: #333;
+    display: flex; justify-content: center; padding: 20px;
+    background-color: #f4f7f9; color: #333;
 }
-.container {
-    width: 90%;
-    max-width: 1200px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
+.container { width: 90%; max-width: 1200px; }
 .card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
+    background-color: white; padding: 20px; border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
 }
-h2 {
-    margin-top: 0;
-    border-bottom: 2px solid #eef;
-    padding-bottom: 10px;
-    color: #2c3e50;
+.tabs { margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+.tab-btn {
+    background: transparent; border: none; padding: 10px 20px;
+    cursor: pointer; font-size: 16px; color: #555;
+    border-bottom: 3px solid transparent; border-radius: 0; margin-right: 0;
 }
+.tab-btn:hover { background-color: #f0f0f0; }
+.tab-btn.active-tab { color: #3498db; border-bottom: 3px solid #3498db; font-weight: bold; }
+.tab-pane { display: none; }
+.tab-pane.active-pane { display: block; }
+
+#editor-ai-tab { display: none; flex-direction: column; gap: 20px; }
+#editor-ai-tab.active-pane { display: flex; }
+
+.preview-card { min-height: 200px; }
+.panels-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+h2 { margin-top: 0; border-bottom: 2px solid #eef; padding-bottom: 10px; color: #2c3e50; }
 textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 14px;
-    resize: vertical;
-    min-height: 120px;
+    width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd;
+    border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px; resize: vertical; min-height: 120px;
 }
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-.input-group {
-    margin-bottom: 15px;
-}
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+.input-group { margin-bottom: 15px; }
+
 button {
-    padding: 10px 15px;
-    border: none;
-    background-color: #3498db;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-    margin-right: 10px;
+    padding: 10px 15px; border: none; background-color: #3498db;
+    color: white; border-radius: 4px; cursor: pointer; font-size: 16px;
+    transition: background-color 0.3s; margin-right: 10px; margin-bottom: 5px;
 }
-button:hover {
-    background-color: #2980b9;
-}
-button.secondary {
-    background-color: #e74c3c;
-}
-button.secondary:hover {
-    background-color: #c0392b;
-}
-#preview-output {
-    border: 1px dashed #ccc;
-    padding: 15px;
-    margin-top: 15px;
-    min-height: 100px;
-    flex-grow: 1;
-}
-#ai-log {
-     border: 1px dashed #ccc;
-     padding: 15px;
-     margin-top: 15px;
-     background-color: #fafafa;
-     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-     font-size: 14px;
-     color: #555;
-     line-height: 1.6;
-     min-height: 100px;
+button:hover { background-color: #2980b9; }
+button.secondary { background-color: #e74c3c; }
+button.secondary:hover { background-color: #c0392b; }
+
+#preview-output, #ai-log {
+    border: 1px dashed #ccc; padding: 15px; background-color: #fafafa;
+    flex-grow: 1; min-height: 150px;
 }
 #api-key-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    width: 100%; box-sizing: border-box; padding: 8px;
+    border: 1px solid #ddd; border-radius: 4px;
 }
-.note {
+.note { font-size: 12px; color: #777; margin-top: 5px; }
+hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
+
+#image-preview {
+    border: 1px dashed #ccc; padding: 10px; margin-top: 10px;
+    min-height: 50px; display: flex; justify-content: center;
+    align-items: center; border-radius: 4px;
+}
+#image-preview img { max-width: 100%; max-height: 150px; border-radius: 4px; }
+
+/* ▼▼▼ 예시 이미지 업로드 UI 스타일 ▼▼▼ */
+.asset-upload-area {
+    margin-top: 15px; padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; /* 창이 좁아지면 줄바꿈 */
+}
+.upload-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+}
+.upload-item { display: flex; align-items: center; gap: 5px; }
+.asset-upload-label {
+    background-color: #ecf0f1;
+    color: #34495e;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+.asset-upload-label:hover { background-color: #bdc3c7; }
+.asset-upload-input { display: none; /* 실제 파일 인풋은 숨김 */ }
+.upload-status {
     font-size: 12px;
-    color: #777;
-    margin-top: 5px;
+    color: #27ae60; /* 초록색 */
+}
+.preview-btn {
+    margin-top: 15px;
+    width: 100%; /* 버튼을 꽉 채움 */
 }
