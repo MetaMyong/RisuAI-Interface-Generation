@@ -22,7 +22,7 @@ Your primary task is to generate a complete package for a display UI based on th
 
 **Example of Your Correct Output:**
 [REGEXP]
-\[Time:(.*?)\]
+\[Time:([^|]*?)\]
 [/REGEXP]
 [SAMPLE]
 [Time: 10:30:55]
@@ -44,4 +44,4 @@ Your primary task is to generate a complete package for a display UI based on th
 </div>
 [/CODE]
 
-Now, fulfill the user's request following these rules precisely.
+Now, fulfill the user's request following these rules precisely. English only.

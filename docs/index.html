@@ -14,7 +14,7 @@
 
 	<div class="header-container">
         <h1 class="main-logo">RisuAI 봇 제작 보조 도구</h1>
-        <a href="#" id="version-link">v1.0.2</a>
+        <a href="#" id="version-link">v1.0.3</a>
     </div>
 
     <div class="container">
@@ -37,7 +37,11 @@
                         <label for="character-prompt">캐릭터의 이름, 외형, 성격, 말투 등을 자유롭게 서술해주세요.</label>
                         <textarea id="character-prompt" placeholder="예: 이름은 '루나'. 은발에 푸른 눈을 가진 차분하고 신비로운 소녀. 사용자에게 항상 존댓말을 사용한다."></textarea>
                     </div>
-                    <button id="character-generate-btn">캐릭터 시트 생성 (한/영)</button>
+					<div class="button-group">
+						<button id="character-generate-btn">AI에게 요청</button>
+						<button id="character-reset-btn" class="secondary">대화 이력 초기화</button>
+					</div>
+					<div id="character-log" class="ai-log-small"></div>
                 </div>
 
                 <div class="card">
@@ -93,7 +97,7 @@
                                 <label for="regex-in">정규식 IN</label>
                                 <button id="debug-regex-btn" class="debug-btn">디버그</button>
                             </div>
-                            <textarea id="regex-in" placeholder="[Time:(.*?)]"></textarea>
+                            <textarea id="regex-in" placeholder="[Time:([^|]*)]"></textarea>
                             <div id="regex-debug-output"></div>
                         </div>
                         <div class="input-group">
@@ -133,9 +137,13 @@
 					<h2>출력 지침 생성 조건 입력</h2>
 					<div class="input-group">
 						<label for="lore-prompt">사용 중인 정규식(IN)과 만들고 싶은 지침의 목적을 자유롭게 서술해주세요.</label>
-						<textarea id="lore-prompt" placeholder="예시:정규식 [Time:(.*?)][Name:(.*?)]을 사용하는, 게임 속 NPC의 대사를 출력하는 지침을 만들어줘. 시간, 이름, 대사 내용이 포함되어야 해."></textarea>
+						<textarea id="lore-prompt" placeholder="예시:정규식 \[Time:([^|]*)\|Name:([^|]*)\]을 사용하는, 게임 속 NPC의 대사를 출력하는 지침을 만들어줘. 시간, 이름, 대사 내용이 포함되어야 해."></textarea>
 					</div>
-					<button id="lore-generate-btn">AI에게 출력 지침 생성 요청</button>
+					<div class="button-group">
+						<button id="lore-generate-btn">AI에게 요청</button>
+						<button id="lore-reset-btn" class="secondary">대화 이력 초기화</button>
+					</div>
+					<div id="lore-log" class="ai-log-small"></div>
 				</div>
 				<div class="card">
 					<h2>생성된 지침 (한/영)</h2>
@@ -153,28 +161,71 @@
 			</div>
 
             <!-- 탭 4: 설정 -->
-            <div id="settings-tab" class="tab-pane">
-                <div class="card">
-                    <h2>모델 설정</h2>
-                    <div class="input-group">
-						<label for="model-select">모델 선택</label>
-						<select id="model-select" class="settings-select">
-							<option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-							<option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-						</select>
-					</div>
-					<div class="input-group">
-						<label for="api-key-input">Gemini API 키</label>
-						<input type="password" id="api-key-input" placeholder="여기에 API 키를 붙여넣으세요">
-					</div>
-					<div class="input-group checkbox-group">
-						<input type="checkbox" id="prefill-option-checkbox">
-						<label for="prefill-option-checkbox">프리필 옵션</label>
-						<p class="note">AI가 대화의 맥락을 더 잘 이해하도록 돕는 옵션입니다.</p>
-					</div>
-					<p class="note">API 키와 설정은 브라우저에만 저장됩니다.</p>
+			<div id="settings-tab" class="tab-pane">
+				<!-- 서브 탭 버튼 영역 -->
+				<div class="sub-tabs">
+					<button class="sub-tab-btn active-sub-tab" onclick="showSubTab('model-settings-pane')">모델 설정</button>
+					<button class="sub-tab-btn" onclick="showSubTab('prompt-settings-pane')">프롬프트 설정</button>
 				</div>
-            </div>
+
+				<!-- 서브 탭 콘텐츠 영역 -->
+				<div class="sub-tab-content">
+					<!-- 모델 설정 서브 탭 -->
+					<div id="model-settings-pane" class="sub-tab-pane active-sub-pane">
+						<div class="card">
+							<h2>모델 설정</h2>
+							<div class="input-group">
+								<label for="model-select">모델 선택</label>
+								<select id="model-select" class="settings-select">
+									<option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+									<option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+								</select>
+							</div>
+							<div class="input-group">
+								<label for="api-key-input">Gemini API 키</label>
+								<input type="password" id="api-key-input" placeholder="여기에 API 키를 붙여넣으세요">
+							</div>
+							<div class="input-group checkbox-group">
+								<input type="checkbox" id="prefill-option-checkbox">
+								<label for="prefill-option-checkbox">프리필 옵션</label>
+								<p class="note">AI가 대화의 맥락을 더 잘 이해하도록 돕는 옵션입니다.</p>
+							</div>
+							<p class="note">API 키와 설정은 브라우저에만 저장됩니다.</p>
+						</div>
+					</div>
+
+					<!-- 프롬프트 설정 서브 탭 -->
+					<div id="prompt-settings-pane" class="sub-tab-pane">
+						<div class="card">
+							<h2>AI 지침(프롬프트) 커스터마이징</h2>
+							<p class="note" style="margin-bottom: 20px;">
+								이곳에서 각 기능의 AI에게 전달되는 기본 지침을 수정할 수 있습니다. 변수를 수정하거나 역할을 변경하여 AI의 응답을 제어해보세요.
+							</p>
+							
+							<div class="input-group">
+								<label for="interface-prompt-editor">인터페이스 편집기 (Interface.prompt)</label>
+								<textarea id="interface-prompt-editor" class="prompt-editor"></textarea>
+							</div>
+
+							<div class="input-group">
+								<label for="character-prompt-editor">캐릭터 시트 생성기 (Character.prompt)</label>
+								<textarea id="character-prompt-editor" class="prompt-editor"></textarea>
+							</div>
+
+							<div class="input-group">
+								<label for="lore-prompt-editor">출력 지침 생성기 (Lore.prompt)</label>
+								<textarea id="lore-prompt-editor" class="prompt-editor"></textarea>
+							</div>
+							
+							<div class="button-group">
+								<button id="save-prompts-btn">프롬프트 저장</button>
+								<button id="reset-prompts-btn" class="secondary">모든 프롬프트를 기본값으로 초기화</button>
+							</div>
+							<div id="prompt-log" class="ai-log-small"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 
         </div>
     </div>

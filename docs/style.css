@@ -1,26 +1,59 @@
-/* style.css 파일 하단에 아래 내용을 추가하거나 기존 내용을 교체하세요 */
+/* style.css 파일의 전체 내용을 아래 코드로 교체하세요. */
+
+/* ▼▼▼ RisuAI 테마 색상 변수 ▼▼▼ */
+:root {
+    --risu-dark-background: #36393f;
+    --risu-card-background: #2f3136;
+    --risu-input-background: #202225;
+    --risu-text-primary: #ffffff;
+    --risu-text-secondary: #b9bbbe;
+    --risu-text-muted: #72767d;
+    --risu-border-color: #40444b;
+    --risu-interactive-hover: #3a3d42;
+    --risu-accent-color: #5865F2; /* Risu/Discord 스타일의 강조색 */
+    --risu-success-color: #43b581;
+    --risu-error-color: #f04747;
+}
+
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     display: flex; 
-    flex-direction: column; /* header와 footer 배치를 위해 추가 */
-    align-items: center; /* header와 footer 배치를 위해 추가 */
+    flex-direction: column;
+    align-items: center;
     padding: 20px;
-    background-color: #f4f7f9; color: #333;
+    background-color: var(--risu-dark-background); /* 변경: 배경색 */
+    color: var(--risu-text-secondary); /* 변경: 기본 글자색 */
 }
 .container { width: 90%; max-width: 1200px; }
+
 .card {
-    background-color: white; padding: 20px; border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+    background-color: var(--risu-card-background); /* 변경: 카드 배경색 */
+    padding: 20px; border-radius: 8px;
+    box-shadow: none; /* 변경: 그림자 제거 */
+    border: 1px solid var(--risu-border-color); /* 추가: 은은한 테두리 */
+    display: flex; flex-direction: column;
 }
-.tabs { margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+.tabs { 
+    margin-bottom: 20px; 
+    border-bottom: 2px solid var(--risu-border-color); /* 변경: 테두리색 */
+}
 .tab-btn {
     background: transparent; border: none; padding: 10px 20px;
-    cursor: pointer; font-size: 16px; color: #555;
+    cursor: pointer; font-size: 16px; 
+    color: var(--risu-text-muted); /* 변경: 글자색 */
     border-bottom: 3px solid transparent; border-radius: 0; margin-right: 0;
+    transition: color 0.2s, border-bottom-color 0.2s; /* 추가: 부드러운 전환 효과 */
 }
-.tab-btn:hover { background-color: #f0f0f0; }
-.tab-btn.active-tab { color: #3498db; border-bottom: 3px solid #3498db; font-weight: bold; }
+.tab-btn:hover { 
+    background-color: transparent; /* 변경: 호버 시 배경색 없음 */
+    color: var(--risu-text-primary); /* 변경: 호버 시 글자색 */
+}
+.tab-btn.active-tab { 
+    color: var(--risu-text-primary); /* 변경: 활성 탭 글자색 */
+    border-bottom: 3px solid var(--risu-accent-color); /* 변경: 활성 탭 강조색 */
+    font-weight: bold; 
+}
 .tab-pane { display: none; }
 .tab-pane.active-pane { display: block; }
 
@@ -30,75 +63,149 @@ body {
 .preview-card { min-height: 200px; }
 .panels-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-h2 { margin-top: 0; border-bottom: 2px solid #eef; padding-bottom: 10px; color: #2c3e50; }
-textarea {
-    width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd;
-    border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 14px; resize: vertical; min-height: 120px;
+h2 { 
+    margin-top: 0; 
+    border-bottom: 2px solid var(--risu-border-color); /* 변경: 테두리색 */
+    padding-bottom: 10px; 
+    color: var(--risu-text-primary); /* 변경: 제목 글자색 */
 }
-label { display: block; margin-bottom: 5px; font-weight: bold; }
+
+/* Textarea 전용 스타일 */
+textarea {
+    width: 100%; box-sizing: border-box; padding: 10px; 
+    border: 1px solid var(--risu-input-background);
+    border-radius: 4px; 
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px; 
+    resize: vertical; 
+    min-height: 120px; /* textarea에만 높이 지정 */
+    background-color: var(--risu-input-background);
+    color: var(--risu-text-primary);
+}
+
+/* Select 박스 전용 스타일 */
+.settings-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--risu-input-background);
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: var(--risu-input-background);
+    color: var(--risu-text-primary);
+    -webkit-appearance: none; /* 브라우저 기본 스타일 제거 */
+    -moz-appearance: none;
+    appearance: none;
+    /* 커스텀 드롭다운 화살표 추가 (어두운 테마용) */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23b9bbbe' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.8em top 50%;
+    background-size: 0.7em;
+	color-scheme: dark;
+}
+
+/* Select 박스 내부 옵션 스타일 */
+.settings-select option {
+    background-color: var(--risu-card-background); /* 옵션 배경색 지정 */
+    color: var(--risu-text-primary);           /* 옵션 글자색 지정 */
+    padding: 10px; /* 가독성을 위한 패딩 추가 (일부 브라우저 미적용 가능) */
+}
+
+#api-key-input {
+    width: 100%; box-sizing: border-box; padding: 8px;
+    border: 1px solid var(--risu-input-background);
+    border-radius: 4px;
+    background-color: var(--risu-input-background);
+    color: var(--risu-text-primary);
+}
+
+textarea::placeholder, input::placeholder {
+    color: var(--risu-text-muted); /* 추가: 플레이스홀더 글자색 */
+}
+
+label { 
+    display: block; 
+    margin-bottom: 5px; 
+    font-weight: bold; 
+    color: var(--risu-text-secondary); /* 변경: 라벨 글자색 */
+}
 .input-group { margin-bottom: 15px; }
 
 button {
-    padding: 10px 15px; border: none; background-color: #3498db;
-    color: white; border-radius: 4px; cursor: pointer; font-size: 16px;
-    transition: background-color 0.3s; margin-right: 10px; margin-bottom: 5px;
+    padding: 10px 15px; border: none; 
+    background-color: var(--risu-accent-color); /* 변경: 버튼색 */
+    color: white; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-size: 16px;
+    font-weight: bold; /* 추가: 글자 두께 */
+    transition: background-color 0.3s; 
+    margin-right: 10px; 
+    margin-bottom: 5px;
 }
-button:hover { background-color: #2980b9; }
-button.secondary { background-color: #e74c3c; }
-button.secondary:hover { background-color: #c0392b; }
+button:hover { 
+    background-color: #4752c4; /* 변경: 호버 시 버튼색 */
+}
+button.secondary { 
+    background-color: var(--risu-error-color); /* 변경: 보조 버튼색 */
+}
+button.secondary:hover { 
+    background-color: #d83c3e; /* 변경: 호버 시 보조 버튼색 */
+}
 
 #preview-output, #ai-log {
-    border: 1px dashed #ccc; padding: 15px; background-color: #fafafa;
-    flex-grow: 1; min-height: 150px;
+    border: 1px dashed var(--risu-border-color); /* 변경: 테두리색 */
+    padding: 15px; 
+    background-color: var(--risu-input-background); /* 변경: 배경색 */
+    flex-grow: 1; 
+    min-height: 150px;
+    color: var(--risu-text-secondary); /* 추가: 내부 글자색 */
 }
-#api-key-input {
-    width: 100%; box-sizing: border-box; padding: 8px;
-    border: 1px solid #ddd; border-radius: 4px;
-}
-.note { font-size: 12px; color: #777; margin-top: 5px; }
-hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
+
+.note { font-size: 12px; color: var(--risu-text-muted); margin-top: 5px; } /* 변경: 글자색 */
+hr { width: 100%; border: none; border-top: 1px solid var(--risu-border-color); margin: 20px 0; } /* 변경: 구분선색 */
 
 #image-preview {
-    border: 1px dashed #ccc; padding: 10px; margin-top: 10px;
+    border: 1px dashed var(--risu-border-color); /* 변경: 테두리색 */
+    padding: 10px; margin-top: 10px;
     min-height: 50px; display: flex; justify-content: center;
     align-items: center; border-radius: 4px;
+    background-color: var(--risu-input-background); /* 변경: 배경색 */
 }
 #image-preview img { max-width: 100%; max-height: 150px; border-radius: 4px; }
 
 /* ▼▼▼ 예시 이미지 업로드 UI 스타일 ▼▼▼ */
 .asset-upload-area {
     margin-top: 15px; padding-top: 15px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--risu-border-color); /* 변경: 테두리색 */
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-wrap: wrap; /* 창이 좁아지면 줄바꿈 */
+    flex-wrap: wrap; 
 }
 .upload-title {
     font-size: 14px;
     font-weight: bold;
-    color: #555;
+    color: var(--risu-text-secondary); /* 변경: 글자색 */
 }
 .upload-item { display: flex; align-items: center; gap: 5px; }
 .asset-upload-label {
-    background-color: #ecf0f1;
-    color: #34495e;
+    background-color: var(--risu-border-color); /* 변경: 배경색 */
+    color: var(--risu-text-primary); /* 변경: 글자색 */
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
     transition: background-color 0.2s;
 }
-.asset-upload-label:hover { background-color: #bdc3c7; }
-.asset-upload-input { display: none; /* 실제 파일 인풋은 숨김 */ }
+.asset-upload-label:hover { background-color: var(--risu-interactive-hover); }
+.asset-upload-input { display: none; }
 .upload-status {
     font-size: 12px;
-    color: #27ae60; /* 초록색 */
+    color: var(--risu-success-color); /* 변경: 성공 아이콘색 */
 }
 .preview-btn {
     margin-top: 15px;
-    width: 100%; /* 버튼을 꽉 채움 */
+    width: 100%;
 }
 
 /* ▼▼▼ 정규식 디버그 UI 스타일 ▼▼▼ */
@@ -109,80 +216,75 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
     margin-bottom: 5px;
 }
 .label-with-button label {
-    margin-bottom: 0; /* label 기본 마진 제거 */
+    margin-bottom: 0;
 }
 .debug-btn {
     padding: 4px 8px;
     font-size: 12px;
-    background-color: #2ecc71; /* 초록색 계열 */
+    background-color: var(--risu-success-color); /* 변경: 디버그 버튼색 */
     margin: 0;
 }
 .debug-btn:hover {
-    background-color: #27ae60;
+    background-color: #3aa171; /* 변경: 호버 시 디버그 버튼색 */
 }
 #regex-debug-output {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #2d3436; /* 어두운 배경 */
+    margin-top: 10px; padding: 10px;
+    background-color: #2d3436; /* 어두운 배경 유지 */
     color: #dfe6e9;
     border-radius: 4px;
     font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 13px;
-    max-height: 200px;
+    font-size: 13px; max-height: 200px;
     overflow-y: auto;
-    border: 1px solid #444;
+    border: 1px solid var(--risu-border-color); /* 변경: 테두리색 */
 }
 #regex-debug-output .match-block {
-	min-height: 1.6em; /* 최소 높이를 확보하여 겹침 방지 */
-    line-height: 1.6;   /* 줄 간격을 늘려 가독성 향상 */
-    margin-bottom: 2px; /* 각 줄 사이에 약간의 여백 추가 */
+	min-height: 1.6em; 
+    line-height: 1.6;
+    margin-bottom: 2px;
     padding: 8px;
-    border-bottom: 1px solid #555;
+    border-bottom: 1px solid var(--risu-border-color); /* 변경: 구분선색 */
 }
 #regex-debug-output .match-block:last-child {
     border-bottom: none;
 }
 #regex-debug-output .full-match {
-    background-color: #f1c40f; /* 노란색 */
+    background-color: #f1c40f; 
     color: #333;
     padding: 2px 4px;
     border-radius: 3px;
 }
 #regex-debug-output .capture-group {
 	display: inline-block; 
-    background-color: #3498db; /* 파란색 */
+    background-color: #3498db; 
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
 }
 #regex-debug-output .error {
-    color: #e74c3c; /* 빨간색 */
+    color: var(--risu-error-color); /* 변경: 에러 글자색 */
 }
 #regex-debug-output .no-match {
-    color: #95a5a6; /* 회색 */
+    color: var(--risu-text-muted); /* 변경: 글자색 */
 }
 
 /* ▼▼▼ 헤더 및 버전 정보 스타일 ▼▼▼ */
 .header-container {
     width: 90%;
     max-width: 1200px;
-    position: relative; /* 자식 요소의 absolute 위치 기준점 */
-    height: 30px; /* 버전 링크가 들어갈 공간 확보 */
+    position: relative;
+    height: 30px; 
 }
 #version-link {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: absolute; top: 0; right: 0;
     font-size: 14px;
-    color: #555;
-    text-decoration: none;
-    padding: 5px 10px;
-    background-color: #ecf0f1;
+    color: var(--risu-text-secondary); /* 변경: 글자색 */
+    text-decoration: none; padding: 5px 10px;
+    background-color: var(--risu-card-background); /* 변경: 배경색 */
     border-radius: 5px;
     transition: background-color 0.2s;
 }
 #version-link:hover {
-    background-color: #bdc3c7;
+    background-color: var(--risu-interactive-hover);
 }
 
 /* ▼▼▼ 푸터 스타일 ▼▼▼ */
@@ -192,10 +294,10 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
     padding: 20px 0;
     margin-top: 30px;
     font-size: 14px;
-    color: #777;
+    color: var(--risu-text-muted); /* 변경: 글자색 */
 }
 .footer a {
-    color: #3498db;
+    color: var(--risu-accent-color); /* 변경: 링크색 */
     text-decoration: none;
 }
 .footer a:hover {
@@ -204,39 +306,30 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
 
 /* ▼▼▼ 모달 창 스타일 ▼▼▼ */
 .modal {
-    display: none; /* 기본적으로 숨김 */
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
+    display: none; 
+    position: fixed; z-index: 1000;
+    left: 0; top: 0; width: 100%; height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.5); /* 반투명 배경 */
+    background-color: rgba(0,0,0,0.7); /* 변경: 배경 어둡게 */
 }
 .modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 700px;
+    background-color: var(--risu-card-background); /* 변경: 모달 배경색 */
+    margin: 10% auto; padding: 20px;
+    border: 1px solid var(--risu-border-color); /* 변경: 테두리색 */
+    width: 80%; max-width: 700px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     position: relative;
 }
 .modal-close-btn {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
+    color: var(--risu-text-muted); /* 변경: 닫기 버튼색 */
+    position: absolute; top: 10px; right: 20px;
+    font-size: 28px; font-weight: bold;
     cursor: pointer;
 }
 .modal-close-btn:hover,
 .modal-close-btn:focus {
-    color: black;
+    color: var(--risu-text-primary); /* 변경: 호버 시 닫기 버튼색 */
 }
 #changelog-content {
     margin-top: 15px;
@@ -244,45 +337,42 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
     overflow-y: auto;
     line-height: 1.6;
 }
-/* changelog.md 내부 태그 스타일 (선택사항) */
-#changelog-content h3 { margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-#changelog-content code { background-color: #eee; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+#changelog-content h3 { margin-top: 20px; border-bottom: 1px solid var(--risu-border-color); padding-bottom: 5px; }
+#changelog-content code { background-color: var(--risu-input-background); padding: 2px 4px; border-radius: 3px; font-family: monospace; }
 #changelog-content ul { padding-left: 20px; }
 
 /* ▼▼▼ 헤더 로고 스타일 추가 ▼▼▼ */
 .main-logo {
     font-family: 'Orbit', sans-serif;
-    position: absolute;
-    top: -5px;
-    left: 0;
+    position: absolute; top: -5px; left: 0;
     font-size: 24px;
-    color: #2c3e50;
+    color: var(--risu-text-primary); /* 변경: 로고색 */
     margin: 0;
-    font-weight: 400; /* Orbit 폰트는 400 두께만 지원 */
+    font-weight: 400; 
 }
 
 /* ▼▼▼ 캐릭터 시트 UI 스타일 추가 ▼▼▼ */
 #character-sheet-tab {
-    display: none; /* 기본 숨김 */
+    display: none; 
     flex-direction: column;
     gap: 20px;
 }
 #character-sheet-tab.active-pane {
-    display: flex; /* 활성화 시 보임 */
+    display: flex;
 }
 
 #character-sheet-preview, #lore-generator-preview {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 좌우 2단 그리드 */
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
     width: 100%;
     min-height: 300px;
 }
 
 .korean-output, .english-output {
-    border: 1px dashed #ccc;
+    border: 1px dashed var(--risu-border-color); /* 변경: 테두리색 */
     padding: 15px;
-    background-color: #fafafa;
+    background-color: var(--risu-input-background); /* 변경: 배경색 */
     display: flex;
     flex-direction: column;
 }
@@ -290,25 +380,15 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
 .korean-output h3, .english-output h3 {
     margin-top: 0;
     padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--risu-border-color); /* 변경: 테두리색 */
 }
 
 .output-content {
-    flex-grow: 1; /* 남은 공간을 모두 차지 */
-    white-space: pre-wrap; /* 줄바꿈 및 공백 유지 */
-    word-break: break-all; /* 긴 단어 자동 줄바꿈 */
+    flex-grow: 1; 
+    white-space: pre-wrap; 
+    word-break: break-all; 
     font-family: 'Malgun Gothic', sans-serif;
     line-height: 1.7;
-}
-
-/* ▼▼▼ 설정 UI 스타일 추가 ▼▼▼ */
-.settings-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    font-size: 14px;
 }
 
 .checkbox-group {
@@ -324,12 +404,63 @@ hr { width: 100%; border: none; border-top: 1px solid #eee; margin: 20px 0; }
 }
 
 .checkbox-group label {
-    margin-bottom: 0; /* label 기본 마진 제거 */
+    margin-bottom: 0;
     font-weight: normal;
 }
 
 .checkbox-group .note {
     width: 100%;
-    margin-left: 26px; /* 체크박스 너비 + 마진 */
+    margin-left: 26px;
     margin-top: 2px;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.ai-log-small {
+    font-size: 13px;
+    color: var(--risu-text-muted);
+    margin-top: 15px;
+    min-height: 20px;
+    padding-left: 5px;
+}
+
+/* ▼▼▼ 서브 탭 UI 스타일 ▼▼▼ */
+.sub-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--risu-border-color);
+}
+.sub-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--risu-text-muted);
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-bottom-color 0.2s;
+}
+.sub-tab-btn:hover {
+    color: var(--risu-text-primary);
+}
+.sub-tab-btn.active-sub-tab {
+    color: var(--risu-text-primary);
+    border-bottom-color: var(--risu-accent-color);
+}
+.sub-tab-pane {
+    display: none;
+}
+.sub-tab-pane.active-sub-pane {
+    display: block;
+}
+
+/* ▼▼▼ 프롬프트 에디터 textarea 스타일 ▼▼▼ */
+.prompt-editor {
+    min-height: 250px; /* 더 넓은 편집 공간 */
+    font-size: 13px;
+    line-height: 1.6;
 }
