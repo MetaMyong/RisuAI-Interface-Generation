@@ -32,7 +32,7 @@
             <!-- 탭 2: 캐릭터 시트 -->
             <div id="character-sheet-tab" class="tab-pane active-pane">
                 <div class="card">
-                    <h2>캐릭터 설정 입력</h2>
+                    <h2>AI 요청 프롬프트</h2>
                     <div class="input-group">
                         <label for="character-prompt">캐릭터의 이름, 외형, 성격, 말투 등을 자유롭게 서술해주세요.</label>
                         <textarea id="character-prompt" placeholder="예: 이름은 '루나'. 은발에 푸른 눈을 가진 차분하고 신비로운 소녀. 사용자에게 항상 존댓말을 사용한다."></textarea>
@@ -134,7 +134,7 @@
             <!-- 탭 3: 출력 지침 생성기 -->
 			<div id="lore-generator-tab" class="tab-pane">
 				<div class="card">
-					<h2>출력 지침 생성 조건 입력</h2>
+					<h2>AI 요청 프롬프트</h2>
 					<div class="input-group">
 						<label for="lore-prompt">사용 중인 정규식(IN)과 만들고 싶은 지침의 목적을 자유롭게 서술해주세요.</label>
 						<textarea id="lore-prompt" placeholder="예시:정규식 \[Time:([^|]*)\|Name:([^|]*)\]을 사용하는, 게임 속 NPC의 대사를 출력하는 지침을 만들어줘. 시간, 이름, 대사 내용이 포함되어야 해."></textarea>
@@ -146,7 +146,7 @@
 					<div id="lore-log" class="ai-log-small"></div>
 				</div>
 				<div class="card">
-					<h2>생성된 지침 (한/영)</h2>
+					<h2>생성된 지침</h2>
 					<div id="lore-generator-preview">
 						<div class="korean-output">
 							<h3>한국어</h3>
@@ -197,7 +197,7 @@
 					<!-- 프롬프트 설정 서브 탭 -->
 					<div id="prompt-settings-pane" class="sub-tab-pane">
 						<div class="card">
-							<h2>AI 지침(프롬프트) 커스터마이징</h2>
+							<h2>AI 지침 커스터마이징</h2>
 							<p class="note" style="margin-bottom: 20px;">
 								이곳에서 각 기능의 AI에게 전달되는 기본 지침을 수정할 수 있습니다. 변수를 수정하거나 역할을 변경하여 AI의 응답을 제어해보세요.
 							</p>
